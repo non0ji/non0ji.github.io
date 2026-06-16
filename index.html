@@ -2,36 +2,99 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>単語カード</title>
+  <title>ジャンル選択つき単語カード</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 80px; }
-    #card { font-size: 2rem; margin-bottom: 40px; }
-    button { font-size: 1.2rem; padding: 10px 20px; }
+    body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+    #card { font-size: 2rem; margin: 40px 0; }
+    button { font-size: 1.2rem; padding: 10px 20px; margin-top: 20px; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
 
-  <div id="card">読み込み中...</div>
-  <button id="actionBtn">答えを見る</button>
+  <!-- ▼▼ ジャンル選択画面 ▼▼ -->
+  <div id="genreScreen">
+    <h2>ジャンルを選択してください（複数可）</h2>
+
+    <label><input type="checkbox" value="fruit"> 果物</label><br>
+    <label><input type="checkbox" value="animal"> 動物</label><br>
+    <label><input type="checkbox" value="time"> 時間</label><br>
+    <label><input type="checkbox" value="body"> 体の部位</label><br>
+
+    <button id="startBtn">開始</button>
+  </div>
+
+  <!-- ▼▼ 単語カード画面 ▼▼ -->
+  <div id="cardScreen" class="hidden">
+    <div id="card">読み込み中...</div>
+    <button id="actionBtn">答えを見る</button>
+  </div>
 
   <script>
-    // 単語データ（後で JSON に分離も可能）
-    const words = [
-      { en: "apple", ja: "りんご" },
-      { en: "bird", ja: "鳥" },
-      { en: "island", ja: "島" },
-      { en: "forest", ja: "森" }
-    ];
+    // ▼ ジャンルごとの単語データ
+    const genreData = {
+      fruit: [
+        { en: "apple", ja: "リンゴ" },
+        { en: "banana", ja: "バナナ" },
+        { en: "strawberry", ja: "イチゴ" },
+        { en: "watermelon", ja: "スイカ" }
+      ],
+      animal: [
+        { en: "bird", ja: "鳥" },
+        { en: "dog", ja: "犬" },
+        { en: "cat", ja: "猫" },
+        { en: "pig", ja: "豚" },
+        { en: "cow", ja: "牛" },
+        { en: "fish", ja: "魚" }
+      ],
+      time: [
+        { en: "morning", ja: "朝" },
+        { en: "noon", ja: "昼" },
+        { en: "night", ja: "夜" }
+      ],
+      body: [
+        { en: "hand", ja: "手" },
+        { en: "foot", ja: "足" },
+        { en: "head", ja: "頭" },
+        { en: "body", ja: "胴" }
+      ]
+    };
 
-    let index = 0;        // 現在の単語番号
-    let showingAnswer = false; // 英単語表示中か、答え表示中か
+    // ▼ 選択された単語をまとめる配列
+    let words = [];
+    let index = 0;
+    let showingAnswer = false;
 
+    const genreScreen = document.getElementById("genreScreen");
+    const cardScreen = document.getElementById("cardScreen");
     const card = document.getElementById("card");
     const btn = document.getElementById("actionBtn");
 
-    // 最初のカードを表示
-    showWord();
+    // ▼ 開始ボタン
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const checked = [...document.querySelectorAll("input[type=checkbox]:checked")];
 
+      if (checked.length === 0) {
+        alert("少なくとも1つ選択してください");
+        return;
+      }
+
+      // 選んだジャンルの単語をすべて words に追加
+      words = [];
+      checked.forEach(c => {
+        words = words.concat(genreData[c.value]);
+      });
+
+      // 画面切り替え
+      genreScreen.classList.add("hidden");
+      cardScreen.classList.remove("hidden");
+
+      // 最初のカード表示
+      index = 0;
+      showWord();
+    });
+
+    // ▼ 英単語を表示
     function showWord() {
       if (index >= words.length) {
         card.textContent = "終了";
@@ -44,18 +107,18 @@
       showingAnswer = false;
     }
 
+    // ▼ 和訳を表示
     function showAnswer() {
       card.textContent = words[index].ja;
       btn.textContent = "次の単語カードへ";
       showingAnswer = true;
     }
 
+    // ▼ ボタン動作
     btn.addEventListener("click", () => {
       if (!showingAnswer) {
-        // 英単語 → 和訳へ
         showAnswer();
       } else {
-        // 次の単語へ
         index++;
         showWord();
       }
