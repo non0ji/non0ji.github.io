@@ -2,10 +2,11 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ジャンル選択つき単語カード</title>
+  <title>画像つき単語カード</title>
   <style>
     body { font-family: sans-serif; text-align: center; margin-top: 40px; }
-    #card { font-size: 2rem; margin: 40px 0; }
+    #card { font-size: 2rem; margin: 20px 0; }
+    img { width: 60%; max-width: 300px; margin: 20px 0; }
     button { font-size: 1.2rem; padding: 10px 20px; margin-top: 20px; }
     .hidden { display: none; }
   </style>
@@ -26,41 +27,41 @@
 
   <!-- ▼▼ 単語カード画面 ▼▼ -->
   <div id="cardScreen" class="hidden">
+    <img id="cardImg" class="hidden">
     <div id="card">読み込み中...</div>
     <button id="actionBtn">答えを見る</button>
   </div>
 
   <script>
-    // ▼ ジャンルごとの単語データ
+    // ▼ ジャンルごとの単語データ（画像ファイル名を追加）
     const genreData = {
       fruit: [
-        { en: "apple", ja: "リンゴ" },
-        { en: "banana", ja: "バナナ" },
-        { en: "strawberry", ja: "イチゴ" },
-        { en: "watermelon", ja: "スイカ" }
+        { en: "apple", ja: "リンゴ", img: "apple.jpg" },
+        { en: "banana", ja: "バナナ", img: "banana.jpg" },
+        { en: "strawberry", ja: "イチゴ", img: "strawberry.jpg" },
+        { en: "watermelon", ja: "スイカ", img: "watermelon.jpg" }
       ],
       animal: [
-        { en: "bird", ja: "鳥" },
-        { en: "dog", ja: "犬" },
-        { en: "cat", ja: "猫" },
-        { en: "pig", ja: "豚" },
-        { en: "cow", ja: "牛" },
-        { en: "fish", ja: "魚" }
+        { en: "bird", ja: "鳥", img: "bird.jpg" },
+        { en: "dog", ja: "犬", img: "dog.jpg" },
+        { en: "cat", ja: "猫", img: "cat.jpg" },
+        { en: "pig", ja: "豚", img: "pig.jpg" },
+        { en: "cow", ja: "牛", img: "cow.jpg" },
+        { en: "fish", ja: "魚", img: "fish.jpg" }
       ],
       time: [
-        { en: "morning", ja: "朝" },
-        { en: "noon", ja: "昼" },
-        { en: "night", ja: "夜" }
+        { en: "morning", ja: "朝", img: "morning.jpg" },
+        { en: "noon", ja: "昼", img: "noon.jpg" },
+        { en: "night", ja: "夜", img: "night.jpg" }
       ],
       body: [
-        { en: "hand", ja: "手" },
-        { en: "foot", ja: "足" },
-        { en: "head", ja: "頭" },
-        { en: "body", ja: "胴" }
+        { en: "hand", ja: "手", img: "hand.jpg" },
+        { en: "foot", ja: "足", img: "foot.jpg" },
+        { en: "head", ja: "頭", img: "head.jpg" },
+        { en: "body", ja: "胴", img: "body.jpg" }
       ]
     };
 
-    // ▼ 選択された単語をまとめる配列
     let words = [];
     let index = 0;
     let showingAnswer = false;
@@ -68,6 +69,7 @@
     const genreScreen = document.getElementById("genreScreen");
     const cardScreen = document.getElementById("cardScreen");
     const card = document.getElementById("card");
+    const cardImg = document.getElementById("cardImg");
     const btn = document.getElementById("actionBtn");
 
     // ▼ 開始ボタン
@@ -85,36 +87,40 @@
         words = words.concat(genreData[c.value]);
       });
 
-      // 画面切り替え
       genreScreen.classList.add("hidden");
       cardScreen.classList.remove("hidden");
 
-      // 最初のカード表示
       index = 0;
       showWord();
     });
 
-    // ▼ 英単語を表示
+    // ▼ 英単語＋画像を表示
     function showWord() {
       if (index >= words.length) {
         card.textContent = "終了";
+        cardImg.classList.add("hidden");
         btn.style.display = "none";
         return;
       }
 
-      card.textContent = words[index].en;
+      const w = words[index];
+      card.textContent = w.en;
+
+      // 画像表示
+      cardImg.src = "img/" + w.img;
+      cardImg.classList.remove("hidden");
+
       btn.textContent = "答えを見る";
       showingAnswer = false;
     }
 
-    // ▼ 和訳を表示
+    // ▼ 和訳を表示（画像はそのまま）
     function showAnswer() {
       card.textContent = words[index].ja;
       btn.textContent = "次の単語カードへ";
       showingAnswer = true;
     }
 
-    // ▼ ボタン動作
     btn.addEventListener("click", () => {
       if (!showingAnswer) {
         showAnswer();
