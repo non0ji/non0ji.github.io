@@ -20,7 +20,10 @@
     <label><input type="checkbox" value="fruit"> 果物</label><br>
     <label><input type="checkbox" value="animal"> 動物</label><br>
     <label><input type="checkbox" value="time"> 時間</label><br>
-    <label><input type="checkbox" value="body"> 体の部位</label><br>
+    <label><input type="checkbox" value="body"> 体の部位</label><br><br>
+
+    <h3>出題する単語数</h3>
+    <input id="countInput" type="number" min="1" value="5"><br>
 
     <button id="startBtn">開始</button>
   </div>
@@ -33,7 +36,7 @@
   </div>
 
   <script>
-    // ▼ ジャンルごとの単語データ（画像ファイル名を追加）
+    // ▼ ジャンルごとの単語データ（画像ファイル名つき）
     const genreData = {
       fruit: [
         { en: "apple", ja: "リンゴ", img: "apple.jpg" },
@@ -75,24 +78,42 @@
     // ▼ 開始ボタン
     document.getElementById("startBtn").addEventListener("click", () => {
       const checked = [...document.querySelectorAll("input[type=checkbox]:checked")];
+      const count = Number(document.getElementById("countInput").value);
 
       if (checked.length === 0) {
         alert("少なくとも1つ選択してください");
         return;
       }
+      if (count < 1) {
+        alert("出題数は1以上にしてください");
+        return;
+      }
 
-      // 選んだジャンルの単語をすべて words に追加
-      words = [];
+      // ▼ 選んだジャンルの単語をすべて集める
+      let pool = [];
       checked.forEach(c => {
-        words = words.concat(genreData[c.value]);
+        pool = pool.concat(genreData[c.value]);
       });
 
+      // ▼ ランダムに count 個だけ抽出
+      shuffle(pool);
+      words = pool.slice(0, count);
+
+      // ▼ 画面切り替え
       genreScreen.classList.add("hidden");
       cardScreen.classList.remove("hidden");
 
       index = 0;
       showWord();
     });
+
+    // ▼ 配列をシャッフルする（Fisher-Yates）
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
 
     // ▼ 英単語＋画像を表示
     function showWord() {
@@ -106,7 +127,6 @@
       const w = words[index];
       card.textContent = w.en;
 
-      // 画像表示
       cardImg.src = "img/" + w.img;
       cardImg.classList.remove("hidden");
 
@@ -114,7 +134,7 @@
       showingAnswer = false;
     }
 
-    // ▼ 和訳を表示（画像はそのまま）
+    // ▼ 和訳を表示
     function showAnswer() {
       card.textContent = words[index].ja;
       btn.textContent = "次の単語カードへ";
